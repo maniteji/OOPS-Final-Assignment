@@ -1,0 +1,35 @@
+﻿@page "/"
+@using EmployeeManagementSystem.Data.Services
+@inject NavigationManager NavigationManager
+
+<div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to Employee Management System</h1>
+    <p class="lead">A powerful tool to manage your employees</p>
+    <hr class="my-4">
+    <p>Get started by adding employees, marking their attendance, and issuing salaries.</p>
+    <p class="lead">
+        <a class="btn btn-primary btn-lg" href="employees/addemployee" role="button">Add Employee</a>
+        <a class="btn btn-secondary btn-lg" href="attendance/addattendance" role="button">Mark Attendance</a>
+        <a class="btn btn-success btn-lg" href="salaries/addsalary" role="button">Issue Salary</a>
+    </p>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Manage Employees</h2>
+            <p>View, add, and edit employee information, including their name, contact details, and job position.</p>
+            <p><a class="btn btn-secondary" href="employees/" role="button">View Employees »</a></p>
+        </div>
+        <div class="col-md-4">
+            <h2>Track Attendance</h2>
+            <p>Mark attendance for each employee, view their attendance history, and generate attendance reports.</p>
+            <p><a class="btn btn-secondary" href="attendance/" role="button">View Attendance »</a></p>
+        </div>
+        <div class="col-md-4">
+            <h2>Issue Salaries</h2>
+            <p>Issue salaries to your employees, view salary history, and generate salary reports.</p>
+            <p><a class="btn btn-secondary" href="salaries/" role="button">View Salaries »</a></p>
+        </div>
+    </div>
+</div>

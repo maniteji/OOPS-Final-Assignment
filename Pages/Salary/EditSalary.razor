@@ -1,0 +1,77 @@
+﻿@page "/salaries/editsalary/{id}"
+@using EmployeeManagementSystem.Data.Models
+@using EmployeeManagementSystem.Data.Services
+@using System.Globalization;
+@inject NavigationManager NavigationManager
+
+<h1>Edit Salary Record</h1>
+
+@if (salary == null)
+{
+            <p>Loading...</p>
+}
+else
+{
+            <EditForm Model="@salary" OnValidSubmit="@UpdateSalaryRecord">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group">
+                    <label for="employeeId">Employee:</label>
+                    <select class="form-control" id="employeeId" @bind="@salary.EmployeeId">
+                @foreach (var employee in Employees)
+                {
+                                    <option value="@employee.Id">@employee.Name</option>
+                }
+                    </select>
+                    <ValidationMessage For="@(() => salary.EmployeeId)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="month">Month:</label>
+                    <select class="form-control" id="month" @bind="@salary.Month">
+                @foreach (var month in CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.Where(m => !string.IsNullOrEmpty(m)))
+                {
+                                    <option value="@month">@month</option>
+                }
+                    </select>
+                    <ValidationMessage For="@(() => salary.Month)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="year">Year:</label>
+                    <input type="number" class="form-control" id="year" @bind="@salary.Year" min="1900" max="9999" />
+                    <ValidationMessage For="@(() => salary.Year)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount:</label>
+                    <input type="number" class="form-control" id="amount" @bind="@salary.Amount" min="1" />
+                    <ValidationMessage For="@(() => salary.Amount)" />
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-4">Update Salary Record</button>
+            </EditForm>
+}
+
+@code {
+    private List<Employee> Employees = new List<Employee>();
+    private Salary salary;
+
+    [Parameter]
+    public string Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Employees = await EmployeeService.Instance.GetEmployeeAsync();
+        salary = await SalaryService.Instance.GetSalaryByIdAsync(int.Parse(Id));
+    }
+
+    private async Task UpdateSalaryRecord()
+    {
+        if (await SalaryService.Instance.UpdateSalaryAsync(salary))
+        {
+            NavigationManager.NavigateTo("/salaries");
+        }
+    }
+}

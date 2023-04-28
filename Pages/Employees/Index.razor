@@ -1,0 +1,78 @@
+﻿@page "/employees/"
+@inject NavigationManager NavigationManager
+@using EmployeeManagementSystem.Data.Models
+@using EmployeeManagementSystem.Data.Services
+
+<h1>Employee List</h1>
+
+<div class="d-flex justify-content-end mb-3">
+	<a class="btn btn-primary" href="/employees/addemployee">Add Employee</a>
+</div>
+
+@if (employees == null)
+{
+				<p>Loading...</p>
+}
+else
+{
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Designation</th>
+							<th>Department</th>
+							<th>Email</th>
+							<th>Phone</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+			@foreach (var employee in employees)
+			{
+										<tr>
+											<td>@employee.Name</td>
+											<td>@employee.Designation</td>
+											<td>@employee.Department</td>
+											<td>@employee.Email</td>
+											<td>@employee.Phone</td>
+											<td>
+												<div class="btn-group">
+													<a class="btn btn-secondary" href="/employees/editemployee/@employee.Id">Edit</a>
+													<button type="button" class="btn btn-danger" @onclick="() => DeleteEmployee(employee.Id)">Delete</button>
+												</div>
+											</td>
+										</tr>
+			}
+					</tbody>
+				</table>
+}
+
+@code {
+
+	private List<Employee> employees;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadEmployees();
+	}
+
+	private async Task LoadEmployees()
+	{
+		try
+		{
+			employees = await EmployeeService.Instance.GetEmployeeAsync();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex.Message);
+		}
+	}
+
+	private async Task DeleteEmployee(int id)
+	{
+		if (await EmployeeService.Instance.DeleteEmployeeAsync(id))
+		{
+			await LoadEmployees();
+		}
+	}
+}

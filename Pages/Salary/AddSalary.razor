@@ -1,0 +1,67 @@
+﻿@page "/salaries/addsalary"
+@using EmployeeManagementSystem.Data.Models
+@using EmployeeManagementSystem.Data.Services
+@using System.Globalization;
+@inject NavigationManager NavigationManager
+
+<h1>Add Salary</h1>
+
+<EditForm Model="@salary" OnValidSubmit="@AddSalaryRecord">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="employeeId">Employee:</label>
+        <select class="form-control" id="employeeId" @bind="@salary.EmployeeId">
+            @foreach (var employee in Employees)
+            {
+                <option value="@employee.Id">@employee.Name</option>
+            }
+        </select>
+        <ValidationMessage For="@(() => salary.EmployeeId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="month">Month:</label>
+        <select class="form-control" id="month" @bind="@salary.Month">
+            <option value="Select Month">Select Month</option>
+            @foreach (var month in CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.Where(m => !string.IsNullOrEmpty(m)))
+            {
+                    <option value="@month">@month</option>
+            }
+        </select>
+        <ValidationMessage For="@(() => salary.Month)" />
+    </div>
+
+    <div class="form-group">
+        <label for="year">Year:</label>
+        <input type="number" class="form-control" id="year" @bind="@salary.Year" />
+        <ValidationMessage For="@(() => salary.Year)" />
+    </div>
+
+    <div class="form-group">
+        <label for="amount">Amount:</label>
+        <input type="number" class="form-control" id="amount" @bind="@salary.Amount" />
+        <ValidationMessage For="@(() => salary.Amount)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-4">Add Salary Record</button>
+</EditForm>
+
+@code {
+    private List<Employee> Employees = new List<Employee>();
+    private Salary salary = new Salary();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Employees = await EmployeeService.Instance.GetEmployeeAsync();
+    }
+
+    private async Task AddSalaryRecord()
+    {
+        if (await SalaryService.Instance.AddSalaryAsync(salary))
+        {
+            NavigationManager.NavigateTo("/salaries");
+        }
+    }
+}
