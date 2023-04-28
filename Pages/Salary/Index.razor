@@ -1,0 +1,97 @@
+﻿@page "/salaries/"
+@inject NavigationManager NavigationManager
+@using EmployeeManagementSystem.Data.Models
+@using EmployeeManagementSystem.Data.Services
+
+<h1>Salary List</h1>
+<div class="d-flex justify-content-end mb-3">
+	<a class="btn btn-primary" href="/salaries/addsalary">Issue Salary</a>
+</div>
+@if (salaries == null)
+{
+	<p>Loading...</p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Employee Name</th>
+				<th>Amount</th>
+				<th>Date Paid</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var salary in salaries)
+			{
+				<tr>
+					@{
+                        var emp = employees.FirstOrDefault(a => a.Id == salary.EmployeeId);
+                    }
+                    @if (salary == null)
+                    {
+						<td><span class="text-muted">Name not found</span></td>
+                    }
+                    else
+                    {
+						<td>@emp.Name</td>
+                    }
+					<td>@salary.Amount</td>
+					<td>@(salary.Month+", "+@salary.Year)</td>
+					<td>
+						<div class="btn-group">
+									<a class="btn btn-secondary" @onclick="() => EditSalary(salary.Id)">Edit</a>
+							<button type="button" class="btn btn-danger" @onclick="() => DeleteSalary(salary.Id)">Delete</button>
+						</div>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+
+@code {
+	private List<Salary> salaries;
+	private List<Employee> employees;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadSalaries();
+	}
+
+	private async Task LoadSalaries()
+	{
+		try
+		{
+			var emp = await EmployeeService.Instance.GetEmployeeAsync();
+			employees = emp.OrderBy(a => a.Name).ToList();
+			salaries = await SalaryService.Instance.GetSalariesAsync();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex.Message);
+		}
+	}
+
+	private async Task DeleteSalary(int id)
+	{
+		if (await SalaryService.Instance.DeleteSalaryAsync(id))
+		{
+			await LoadSalaries();
+		}
+	}
+
+	private void EditSalary(int id)
+	{
+		try
+		{
+			NavigationManager.NavigateTo("/salaries/editsalary/" + id);
+		}
+		catch (Exception)
+		{
+			
+			throw;
+		}
+	}
+}

@@ -1,0 +1,67 @@
+﻿@page "/employees/addemployee"
+@using System.ComponentModel.DataAnnotations;
+@inject NavigationManager NavigationManager
+@using EmployeeManagementSystem.Data.Services
+@using EmployeeManagementSystem.Data.Models
+
+<h1>Add Employee</h1>
+
+<EditForm Model="@employee" OnValidSubmit="@AddEmploye">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="employee.Name" class="form-control" />
+        <ValidationMessage For="@(() => employee.Name)" />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email</label>
+        <InputText id="email" @bind-Value="employee.Email" class="form-control" />
+        <ValidationMessage For="@(() => employee.Email)" />
+    </div>
+
+    <div class="form-group">
+        <label for="phone">Phone</label>
+        <InputText id="phone" @bind-Value="employee.Phone" class="form-control" />
+        <ValidationMessage For="@(() => employee.Phone)" />
+    </div>
+
+    <div class="form-group">
+        <label for="address">Address</label>
+        <InputText id="address" @bind-Value="employee.Address" class="form-control" />
+        <ValidationMessage For="@(() => employee.Address)" />
+    </div>
+
+    <div class="form-group">
+        <label for="department">Department</label>
+        <InputText id="department" @bind-Value="employee.Department" class="form-control" />
+        <ValidationMessage For="@(() => employee.Department)" />
+    </div>
+
+    <div class="form-group">
+        <label for="designation">Designation</label>
+        <InputText id="designation" @bind-Value="employee.Designation" class="form-control" />
+        <ValidationMessage For="@(() => employee.Designation)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-4">Add Employee</button>
+</EditForm>
+
+@code {
+    private Employee employee = new Employee();
+
+    private async Task AddEmploye()
+    {
+        if (!employee.IsValid())
+        {
+            return;
+        }
+
+        if(await EmployeeService.Instance.AddEmployeeAsync(employee))
+        {
+            NavigationManager.NavigateTo("/employees");
+        }
+    }
+}

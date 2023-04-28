@@ -1,0 +1,83 @@
+﻿@page "/attendance"
+@using EmployeeManagementSystem.Data.Models
+@using EmployeeManagementSystem.Data.Services
+@inject NavigationManager NavigationManager
+
+<h1>Attendance Records</h1>
+
+<div class="d-flex justify-content-end mb-3">
+<a class="btn btn-primary" href="/attendance/addattendance">Mark Attendance</a>
+</div>
+
+<div class="mb-3">
+    <label for="searchDate" class="form-label">Search Attendance for Date:</label>
+    <div class="input-group">
+        <input type="date" class="form-control" id="searchDate" @bind="SearchDate">
+        <button class="btn btn-primary" @onclick="SearchAttendance">Search</button>
+    </div>
+</div>
+
+@if (Employees == null || Attendances == null)
+{
+        <p>Loading...</p>
+}
+else
+{
+    <h5 class="mt-3 mb-1">Attendance for date : @SearchDate.Date.ToString("dd MMMM yyyy").</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var employee in Employees)
+            {
+                <tr>
+                    <td>@employee.Name</td>
+                    <td>
+                        @{
+                            var attendance = Attendances.FirstOrDefault(a => a.EmployeeId == employee.Id && a.Date == SearchDate.Date);
+                        }
+                        @if (attendance == null)
+                        {
+                             <span class="text-muted">Not Specified</span>
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center">
+                                @attendance.Status
+                                <button class="btn btn-link ml-2" @onclick="(() => ChangeStatus(attendance))">Change</button>
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+}
+
+@code {
+    private List<Employee> Employees;
+    private List<Attendance> Attendances;
+    private DateTime SearchDate = DateTime.Now.Date;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var emp = await EmployeeService.Instance.GetEmployeeAsync();
+        Employees = emp.OrderBy(a => a.Name).ToList();
+        Attendances = await AttendanceService.Instance.GetAttendanceAsync();
+    }
+
+    private async Task SearchAttendance()
+    {
+        var attendece = await AttendanceService.Instance.GetAttendanceAsync();
+        Attendances = attendece.Where(a => a.Date == SearchDate).ToList();
+    }
+
+    private async Task ChangeStatus(Attendance attendance)
+    {
+        await AttendanceService.Instance.ChangeAttendanceStatusAsync(attendance);
+    }
+}
